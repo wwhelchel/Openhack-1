@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import os
+import optparse
+import random
+import sys
+import time
+
+from Infrastructure import disclaimer
+from Infrastructure import instances
+
+def parse_options():
+    parser = optparse.OptionParser(description='Unleash some chaos.',
+                                  )
+    parser.add_option("-n",
+                      "--number",
+                      action='store',
+                      dest="num_iterations",
+                      default=1,
+                      help="The number of instances OpenHack will attemp to terminate.")
+    parser.add_option("-t",
+                      "--tag",
+                      action='store',
+                      dest="tag_name",
+                      default=None,
+                      help="Only delete instances with tag <tagname>")
+    parser.add_option("-w",
+                      "--wait",
+                      action='store',
+                      dest="wait_time",
+                      default=5,
+                      help="The amount of time Openhack will wait between each operation")
+    return parser.parse_args()
+
+def main():
+    options, args = parse_options()
+    indemn = disclaimer.indemnify()
+    insts = instances.manage_instances()
+    
+    NUM_OPERATIONS = options.num_iterations
+    TAG = options.tag_name
+    WAIT_TIME = options.wait_time
+
+    if indemn.disclaimer_response() == True:
+        for i in range(int(NUM_OPERATIONS)):
+            insts.delete_random_instance(TAG)
+            print 'Waiting for %f seconds' % int(WAIT_TIME)
+            time.sleep(float(WAIT_TIME))
+    else:
+        sys.exit(1)
+
+if __name__ == "__main__":
+   sys.exit(main())
